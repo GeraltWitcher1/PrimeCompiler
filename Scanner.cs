@@ -1,96 +1,97 @@
-﻿namespace Prime;
+﻿using Prime.Tokens;
+
+namespace Prime;
 
 public class Scanner
 {
-    private readonly string input;
-    private int position;
-
-    private static readonly Dictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>
-    {
-        { "int", TokenType.Keyword },
-        { "bool", TokenType.Keyword },
-        { "char", TokenType.Keyword },
-        { "array", TokenType.Keyword },
-        { "func", TokenType.Keyword },
-        { "return", TokenType.Keyword },
-        { "if", TokenType.Keyword },
-        { "else", TokenType.Keyword },
-        { "for", TokenType.Keyword },
-        { "main", TokenType.Keyword },
-    };
+    private readonly string _input;
+    private int _position;
 
     public Scanner(string input)
     {
-        this.input = input;
-        position = 0;
+        _input = input;
+        _position = 0;
+    }
+
+    private char Current => Peek(0);
+    private char Lookahead => Peek(1);
+
+    private char Peek(int offset)
+    {
+        var index = _position + offset;
+
+        return index >= _input.Length ? '\0' : _input[index];
     }
 
     public Token? GetNextToken()
     {
-        if (position >= input.Length)
+        if (_position >= _input.Length)
         {
             return null; // End of input
         }
 
-        char currentChar = input[position];
-
-        if (char.IsLetter(currentChar) || currentChar == '_')
+        if (char.IsLetter(Current))
         {
             // Identifier or Keyword
-            string lexeme = ReadIdentifierOrKeyword();
-            if (Keywords.TryGetValue(lexeme, out var keyword))
-            {
-                return new Token(keyword, lexeme);
-            }
-            return new Token(TokenType.Identifier, lexeme);
-        }
-        else if (char.IsDigit(currentChar))
-        {
-            // Integer
-            string lexeme = ReadInteger();
-            return new Token(TokenType.Integer, lexeme);
-        }
-        else
-        {
-            // Handle other token types as needed
-            
-            // Operator
-            string lexeme = ReadOperator();
-            return new Token(TokenType.Operator, lexeme);
+            var lexeme = ReadIdentifierOrKeyword();
+            return TokenFacts.IsKeyword(lexeme)
+                ? TokenFacts.GetKeywordToken(lexeme)
+                : new Token(TokenType.Identifier, lexeme);
         }
 
-        // If no token is recognized, move to the next character and try again
-        position++;
+        if (char.IsDigit(Current))
+        {
+            // Integer
+            var lexeme = ReadInteger();
+            return new Token(TokenType.Integer, lexeme);
+        }
+
+        if (char.IsWhiteSpace(Current))
+        {
+            // Whitespace
+            _position++;
+            return GetNextToken();
+        }
+
+        if (TokenFacts.IsOperator(Current))
+        {
+            // Operator
+            string spelling = ReadOperator();
+            return new Token(TokenType.Operator, spelling);
+        }
+
+        _position++;
         return GetNextToken();
     }
+
 
     // Helper methods for reading specific token types
     private string ReadIdentifierOrKeyword()
     {
-        int start = position;
-        while (position < input.Length && (char.IsLetterOrDigit(input[position]) || input[position] == '_'))
+        int start = _position;
+        while (_position < _input.Length && char.IsLetterOrDigit(Current))
         {
-            position++;
+            _position++;
         }
-        return input.Substring(start, position - start);
+
+        return _input.Substring(start, _position - start);
     }
 
     private string ReadInteger()
     {
-        int start = position;
-        while (position < input.Length && char.IsDigit(input[position]))
+        int start = _position;
+        while (_position < _input.Length && char.IsDigit(Current))
         {
-            position++;
+            _position++;
         }
-        return input.Substring(start, position - start);
+
+        return _input.Substring(start, _position - start);
     }
 
     private string ReadOperator()
     {
         // Implement operator recognition logic here
         // For simplicity, we'll assume operators are single characters
-        return input[position++].ToString();
+        return _input[_position++].ToString();
     }
-
-    // Add more helper methods for other token types if needed
 }

@@ -1,4 +1,6 @@
-﻿namespace Prime;
+﻿using Prime.Tokens;
+
+namespace Prime;
 
 public class Program
 {
