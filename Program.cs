@@ -1,3 +1,21 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿namespace Prime;
 
-Console.WriteLine("Hello, World!");
+public class Program
+{
+    public static void Main()
+    {
+        const string inputCode = "int x = 42; bool y = true; for (int i = 0; i < 10; i++) { x = x + 1; }";
+
+        var scanner = new Scanner(inputCode);
+
+        Token? token;
+        do
+        {
+            token = scanner.GetNextToken();
+            if (token != null)
+            {
+                Console.WriteLine($"Token: {token.Type}, Lexeme: {token.Spelling}");
+            }
+        } while (token != null);
+    }
+}
