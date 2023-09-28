@@ -7,6 +7,15 @@ public enum TokenType
     Keyword,
     Integer,
     Operator,
+    EndOfFile,
+    Error,
+    LeftCurly,
+    RightCurly,
+    LeftParen,
+    RightParen,
+    Semicolon,
+    Colon,
+    Comma,
     // Add more token types as needed
 }
 

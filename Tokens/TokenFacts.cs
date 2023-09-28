@@ -16,9 +16,9 @@ public static class TokenFacts
         {"main", TokenType.Keyword},
     };
 
-    public static Token? GetKeywordToken(string lexeme)
+    public static Token GetKeywordToken(string lexeme)
     {
-        return Keywords.TryGetValue(lexeme, out var keyword) ? new Token(keyword, lexeme) : null;
+        return Keywords.TryGetValue(lexeme, out var keyword) ? new Token(keyword, lexeme) : new Token(TokenType.Error, "");
     }
 
     public static bool IsKeyword(string lexeme)

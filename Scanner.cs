@@ -23,11 +23,11 @@ public class Scanner
         return index >= _input.Length ? '\0' : _input[index];
     }
 
-    public Token? GetNextToken()
+    public Token GetNextToken()
     {
         if (_position >= _input.Length)
         {
-            return null; // End of input
+            return new Token(TokenType.EndOfFile, "\0"); // End of input
         }
 
         if (char.IsLetter(Current))
@@ -60,8 +60,27 @@ public class Scanner
             return new Token(TokenType.Operator, spelling);
         }
 
+        var token = ReadToken(Current);
+        
         _position++;
-        return GetNextToken();
+        return token;
+    }
+
+    private Token ReadToken(char current)
+    {
+        var token = current switch
+        {
+            ';' => new Token(TokenType.Semicolon, ";"),
+            '(' => new Token(TokenType.LeftParen, "("),
+            ')' => new Token(TokenType.RightParen, ")"),
+            '{' => new Token(TokenType.LeftCurly, "{"),
+            '}' => new Token(TokenType.RightCurly, "}"),
+            ',' => new Token(TokenType.Comma, ","),
+            ':' => new Token(TokenType.Colon, ":"),
+            '\0' => new Token(TokenType.EndOfFile, "\0"),
+            _ => new Token(TokenType.Error, Current.ToString())
+        };
+        return token;
     }
 
 
