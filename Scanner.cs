@@ -110,7 +110,21 @@ public class Scanner
     private string ReadOperator()
     {
         // Implement operator recognition logic here
-        // For simplicity, we'll assume operators are single characters
-        return _input[_position++].ToString();
+        // use peekahead to determine if the operator is a single or double character
+
+        var token =  Current switch
+        {
+            '=' when Lookahead == '=' => "==",
+            '!' when Lookahead == '=' => "!=",
+            '<' when Lookahead == '=' => "<=",
+            '>' when Lookahead == '=' => ">=",
+            '*' when Lookahead == '=' => "*=",
+            '/' when Lookahead == '=' => "/=",
+            '+' when Lookahead == '=' => "+=",
+            '-' when Lookahead == '=' => "-=",
+            _ => Current.ToString()
+        };
+        _position += token.Length;
+        return token;
     }
 }

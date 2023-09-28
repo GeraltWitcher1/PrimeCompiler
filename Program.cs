@@ -6,7 +6,7 @@ public class Program
 {
     public static void Main()
     {
-        const string inputCode = "int ^x = 42; bool y = true; for (int i = 0; i < 10; i++) { x = x + 1; }";
+        const string inputCode = "int x = 42; bool y = true; for (int i = 0; i < 10; i++) { x = x + 1; }";
 
         var scanner = new Scanner(inputCode);
 
