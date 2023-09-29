@@ -22,7 +22,6 @@ public class Program
     }
     private static string ReadCodeFromFile(string filePath)
     {
-
-        return  File.ReadAllText(filePath);
+        return File.ReadAllText(filePath);
     }
 }

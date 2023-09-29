@@ -76,7 +76,6 @@ public class Scanner
             '{' => new Token(TokenType.LeftCurly, "{"),
             '}' => new Token(TokenType.RightCurly, "}"),
             ',' => new Token(TokenType.Comma, ","),
-            ':' => new Token(TokenType.Colon, ":"),
             '\0' => new Token(TokenType.EndOfFile, "\0"),
             _ => new Token(TokenType.Error, Current.ToString())
         };
@@ -122,6 +121,8 @@ public class Scanner
             '/' when Lookahead == '=' => "/=",
             '+' when Lookahead == '=' => "+=",
             '-' when Lookahead == '=' => "-=",
+            '-' when Lookahead == '>' => "->",
+            ':' when Lookahead == '=' => ":=",
             _ => Current.ToString()
         };
         _position += token.Length;

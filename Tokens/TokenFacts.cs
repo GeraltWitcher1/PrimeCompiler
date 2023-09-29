@@ -37,6 +37,7 @@ public static class TokenFacts
             '=' => true,
             '<' => true,
             '>' => true,
+            ':' => true,
             _ => false
         };
     }

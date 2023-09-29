@@ -12,8 +12,9 @@ public enum TokenType
     RightCurly,
     LeftParen,
     RightParen,
+    RightBracket,
+    LeftBracket,
     Semicolon,
-    Colon,
     Comma,
     
     EndOfFile,
