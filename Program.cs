@@ -6,7 +6,7 @@ public class Program
 {
     public static void Main()
     {
-        const string inputCode = "int x = 42; bool y = true; for (int i = 0; i < 10; i++) { x = x + 1; }";
+        string inputCode = ReadCodeFromFile("prime.txt");
 
         var scanner = new Scanner(inputCode);
 
@@ -19,5 +19,10 @@ public class Program
                 Console.WriteLine($"Token: {token.Type}, Lexeme: {token.Spelling}");
             }
         } while (token.Type != TokenType.EndOfFile);
+    }
+    private static string ReadCodeFromFile(string filePath)
+    {
+
+        return  File.ReadAllText(filePath);
     }
 }
