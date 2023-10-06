@@ -27,7 +27,7 @@ public class Scanner
     {
         if (_position >= _input.Length)
         {
-            return new Token(TokenType.EndOfFile, "\0"); // End of input
+            return new Token(TokenType.EndOfFile, "\0", _position); // End of input
         }
 
         if (char.IsLetter(Current))
@@ -35,15 +35,15 @@ public class Scanner
             // Identifier or Keyword
             var lexeme = ReadIdentifierOrKeyword();
             return TokenFacts.IsKeyword(lexeme)
-                ? TokenFacts.GetKeywordToken(lexeme)
-                : new Token(TokenType.Identifier, lexeme);
+                ? TokenFacts.GetKeywordToken(lexeme, _position)
+                : new Token(TokenType.Identifier, lexeme, _position);
         }
 
         if (char.IsDigit(Current))
         {
             // Integer
             var lexeme = ReadInteger();
-            return new Token(TokenType.Integer, lexeme);
+            return new Token(TokenType.Integer, lexeme, _position);
         }
 
         if (char.IsWhiteSpace(Current))
@@ -52,17 +52,15 @@ public class Scanner
             _position++;
             return GetNextToken();
         }
-
-        if (TokenFacts.IsOperator(Current))
+        if (TokenFacts.IsOperator(Current, Lookahead))
         {
             // Operator
             string spelling = ReadOperator();
-            return new Token(TokenType.Operator, spelling);
+            return new Token(TokenType.Operator, spelling, _position);
         }
 
         var token = ReadToken(Current);
         
-        _position++;
         return token;
     }
 
@@ -70,15 +68,19 @@ public class Scanner
     {
         var token = current switch
         {
-            ';' => new Token(TokenType.Semicolon, ";"),
-            '(' => new Token(TokenType.LeftParen, "("),
-            ')' => new Token(TokenType.RightParen, ")"),
-            '{' => new Token(TokenType.LeftCurly, "{"),
-            '}' => new Token(TokenType.RightCurly, "}"),
-            ',' => new Token(TokenType.Comma, ","),
-            '\0' => new Token(TokenType.EndOfFile, "\0"),
-            _ => new Token(TokenType.Error, Current.ToString())
+            ';' => new Token(TokenType.Semicolon, ";", _position),
+            '(' => new Token(TokenType.LeftParen, "(", _position),
+            ')' => new Token(TokenType.RightParen, ")", _position),
+            '{' => new Token(TokenType.LeftCurly, "{", _position),
+            '}' => new Token(TokenType.RightCurly, "}", _position),
+            '[' => new Token(TokenType.LeftBracket, "[", _position),
+            ']' => new Token(TokenType.RightBracket, "]", _position),
+            ',' => new Token(TokenType.Comma, ",", _position),
+            '-' when Lookahead == '>' => new Token(TokenType.Arrow, "->", _position),
+            '\0' => new Token(TokenType.EndOfFile, "\0", _position),
+            _ => new Token(TokenType.Error, Current.ToString(), _position)
         };
+        _position += token.Spelling.Length;
         return token;
     }
 
@@ -121,7 +123,6 @@ public class Scanner
             '/' when Lookahead == '=' => "/=",
             '+' when Lookahead == '=' => "+=",
             '-' when Lookahead == '=' => "-=",
-            '-' when Lookahead == '>' => "->",
             ':' when Lookahead == '=' => ":=",
             _ => Current.ToString()
         };

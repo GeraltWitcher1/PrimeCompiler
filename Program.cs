@@ -6,7 +6,7 @@ public class Program
 {
     public static void Main()
     {
-        string inputCode = ReadCodeFromFile("prime.txt");
+        string inputCode = ReadCodeFromFile(@"D:\VIA 6-7 sem\CMC\Compiler\Prime\prime.txt");
 
         var scanner = new Scanner(inputCode);
 

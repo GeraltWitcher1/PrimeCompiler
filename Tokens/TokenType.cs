@@ -4,8 +4,17 @@
 public enum TokenType
 {
     Identifier,
-    Keyword,
+    Type,
+    Array,
+    Func,
+    Return,
+    If,
+    Else,
+    For,
+    Main,
     Integer,
+    Char,
+    Bool,
     Operator,
 
     LeftCurly,
@@ -15,6 +24,7 @@ public enum TokenType
     RightBracket,
     LeftBracket,
     Semicolon,
+    Arrow,
     Comma,
     
     EndOfFile,
