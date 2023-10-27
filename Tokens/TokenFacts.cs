@@ -4,21 +4,21 @@ public static class TokenFacts
 {
     private static readonly Dictionary<string, TokenType> Keywords = new()
     {
-        {"int", TokenType.Keyword},
-        {"bool", TokenType.Keyword},
-        {"char", TokenType.Keyword},
-        {"array", TokenType.Keyword},
-        {"func", TokenType.Keyword},
-        {"return", TokenType.Keyword},
-        {"if", TokenType.Keyword},
-        {"else", TokenType.Keyword},
-        {"for", TokenType.Keyword},
-        {"main", TokenType.Keyword},
+        {"int", TokenType.Type},
+        {"bool", TokenType.Type},
+        {"char", TokenType.Type},
+        {"array", TokenType.Array},
+        {"func", TokenType.Func},
+        {"return", TokenType.Return},
+        {"if", TokenType.If},
+        {"else", TokenType.Else},
+        {"for", TokenType.For},
+        {"main", TokenType.Main}
     };
 
-    public static Token GetKeywordToken(string lexeme)
+    public static Token GetKeywordToken(string lexeme, int position)
     {
-        return Keywords.TryGetValue(lexeme, out var keyword) ? new Token(keyword, lexeme) : new Token(TokenType.Error, "");
+        return Keywords.TryGetValue(lexeme, out var keyword) ? new Token(keyword, lexeme, position) : new Token(TokenType.Error, "", position);
     }
 
     public static bool IsKeyword(string lexeme)
@@ -26,19 +26,34 @@ public static class TokenFacts
         return Keywords.ContainsKey(lexeme);
     }
 
-    public static bool IsOperator(char current)
+    public static bool IsOperator(char current, char lookahead)
     {
-        return current switch
+        return (current, lookahead) switch
         {
-            '+' => true,
-            '-' => true,
-            '*' => true,
-            '/' => true,
-            '=' => true,
-            '<' => true,
-            '>' => true,
-            ':' => true,
+            ('+', _) => true,
+            ('-', '>' ) => false,
+            ('-', _) => true,
+            ('*', _) => true,
+            ('/', _) => true,
+            ('=', _) => true,
+            ('<', _) => true,
+            ('>', _) => true,
+            (':', _) => true,
             _ => false
         };
     }
+
+    public static TokenType GetOperatorLevel(string spelling)
+    {
+        return spelling switch
+        {
+            "&" or "|" => TokenType.OperatorL1,
+            "==" or "!=" or "<=" or ">=" or "<" or ">" => TokenType.OperatorL2,
+            "+" or "-" => TokenType.OperatorL3,
+            "*" or "/" or "%" => TokenType.OperatorL4,
+            ":=" => TokenType.AssignOperator,
+            _ => TokenType.Operator
+        };
+    }
+
 }
