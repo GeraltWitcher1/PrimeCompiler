@@ -56,7 +56,8 @@ public class Scanner
         {
             // Operator
             string spelling = ReadOperator();
-            return new Token(TokenType.Operator, spelling, _position);
+            var tokenType = TokenFacts.GetOperatorLevel(spelling);
+            return new Token(tokenType, spelling, _position);
         }
 
         var token = ReadToken(Current);
@@ -83,9 +84,7 @@ public class Scanner
         _position += token.Spelling.Length;
         return token;
     }
-
-
-    // Helper methods for reading specific token types
+    
     private string ReadIdentifierOrKeyword()
     {
         int start = _position;
@@ -110,9 +109,6 @@ public class Scanner
 
     private string ReadOperator()
     {
-        // Implement operator recognition logic here
-        // use peekahead to determine if the operator is a single or double character
-
         var token =  Current switch
         {
             '=' when Lookahead == '=' => "==",

@@ -16,164 +16,247 @@ public class Parser
     public void ParseProgram()
     {
         ParseFunctionDeclarations();
-        ParseMainFunction();
-        
-        if(_currentToken.Type != TokenType.EndOfFile )
-            Console.WriteLine("Tokens found after end of program");
+
+        if (_currentToken.Type != TokenType.EndOfFile)
+            throw new ParseException("Cannot define non functions at outer scope", _currentToken.Position);
     }
 
     private void Consume(TokenType expectedType, string? expectedSpelling = null)
     {
-        if (_currentToken.Type != expectedType || (expectedSpelling != null && _currentToken.Spelling != expectedSpelling))
+        if (_currentToken.Type != expectedType ||
+            (expectedSpelling != null && _currentToken.Spelling != expectedSpelling))
         {
             var expected = expectedSpelling == null ? expectedType.ToString() : $"'{expectedSpelling}'";
             var actual = _currentToken.Type == TokenType.EndOfFile ? "end of file" : $"'{_currentToken.Spelling}'";
-            throw new ParseException($"Syntax error: expected {expected} but found {actual}", _currentToken.LineNumber);
+            throw new ParseException($"Syntax error: expected {expected} but found {actual}", _currentToken.Position);
         }
 
-        var token = _currentToken;
         _currentToken = _scanner.GetNextToken();
     }
-    
-    private bool Match(TokenType expectedType)
+
+    private bool MatchAndConsume(TokenType expectedType)
     {
-        if (_currentToken.Type != expectedType) 
+        if (_currentToken.Type != expectedType)
             return false;
-        _currentToken = _scanner.GetNextToken();
+        Consume(expectedType);
         return true;
     }
-    
+
     private void ParseFunctionDeclarations()
     {
         while (_currentToken.Type == TokenType.Func)
         {
-            // Consume 'func' token
             Consume(TokenType.Func);
 
-            // Parse function name (Identifier)
-            Consume(TokenType.Identifier);
-
-            // Check for parameters
-            if (_currentToken.Type == TokenType.LeftParen)
+            if (_currentToken.Type == TokenType.Main)
             {
-                Consume(TokenType.LeftParen);
-
-                // Parse parameter list if it exists
-                if (_currentToken.Type == TokenType.Type)
-                {
-                    ParseParameters();
-                }
-
-                // Consume closing parenthesis
-                Consume(TokenType.RightParen);
+                ParseMainFunction();
+                return;
             }
 
-            // Check for return type (-> Type)
-            if (_currentToken.Type == TokenType.Operator)
+            Consume(TokenType.Identifier);
+            Consume(TokenType.LeftParen);
+
+            if (_currentToken.Type == TokenType.Type)
             {
-                Consume(TokenType.Operator, "->");
+                ParseParameters();
+            }
+
+            Consume(TokenType.RightParen);
+            
+            if (_currentToken.Type == TokenType.Arrow)
+            {
+                Consume(TokenType.Arrow);
                 Consume(TokenType.Type);
             }
 
-            // Consume opening curly brace '{'
             Consume(TokenType.LeftCurly);
-
-            // Parse statements within the function body
             ParseStatements();
-
-            // Consume closing curly brace '}'
             Consume(TokenType.RightCurly);
         }
     }
 
     private void ParseStatements()
-{
-    while (_currentToken.Type != TokenType.RightCurly)
     {
-        switch (_currentToken.Type)
+        while (_currentToken.Type != TokenType.RightCurly)
         {
-            case TokenType.Type:
-                // Parse variable declaration statement
-                Consume(TokenType.Type);
-                Consume(TokenType.Identifier);
-                Consume(TokenType.Operator, ":=");
-                ParseExpression();
-                Consume(TokenType.Semicolon);
-                break;
-            case TokenType.If:
+            switch (_currentToken.Type)
             {
-                // Parse if statement
-                Consume(TokenType.If);
-                ParseExpression();
-                Consume(TokenType.LeftCurly);
-                ParseStatements();
-                Consume(TokenType.RightCurly);
-                if (Match(TokenType.Else))
+                case TokenType.Type:
+                    Consume(TokenType.Type);
+                    Consume(TokenType.Identifier);
+                    Consume(TokenType.AssignOperator);
+                    ParseExpression();
+                    Consume(TokenType.Semicolon);
+                    break;
+                case TokenType.If:
                 {
-                    Consume(TokenType.Else);
+                    Consume(TokenType.If);
+                    ParseExpression();
                     Consume(TokenType.LeftCurly);
                     ParseStatements();
                     Consume(TokenType.RightCurly);
-                }
+                    if (MatchAndConsume(TokenType.Else))
+                    {
+                        Consume(TokenType.Else);
+                        Consume(TokenType.LeftCurly);
+                        ParseStatements();
+                        Consume(TokenType.RightCurly);
+                    }
 
-                break;
-            }
-            case TokenType.For:
-                // Parse for loop statement
-                Consume(TokenType.For);
-                Consume(TokenType.Type);
-                Consume(TokenType.Identifier);
-                Consume(TokenType.Operator, ":=");
-                ParseExpression();
-                Consume(TokenType.Semicolon);
-                ParseExpression();
-                Consume(TokenType.Semicolon);
-                ParseExpression();
-                Consume(TokenType.LeftCurly);
-                ParseStatements();
-                Consume(TokenType.RightCurly);
-                break;
-            case TokenType.Return:
-            {
-                // Parse return statement
-                Consume(TokenType.Return);
-                if (_currentToken.Type != TokenType.Semicolon)
-                {
-                    ParseExpression();
+                    break;
                 }
-                Consume(TokenType.Semicolon);
-                break;
+                case TokenType.For:
+                    Consume(TokenType.For);
+                    Consume(TokenType.Type);
+                    Consume(TokenType.Identifier);
+                    Consume(TokenType.AssignOperator);
+                    ParseExpression();
+                    Consume(TokenType.Semicolon);
+                    ParseExpression();
+                    Consume(TokenType.Semicolon);
+                    ParseExpression();
+                    Consume(TokenType.LeftCurly);
+                    ParseStatements();
+                    Consume(TokenType.RightCurly);
+                    break;
+                case TokenType.Return:
+                {
+                    Consume(TokenType.Return);
+                    if (!MatchAndConsume(TokenType.Semicolon))
+                    {
+                        ParseExpression();
+                    }
+                    Consume(TokenType.Semicolon);
+                    break;
+                }
+                default:
+                    ParseExpression();
+                    Consume(TokenType.Semicolon);
+                    break;
             }
-            default:
-                // Parse expression statement
-                ParseExpression();
-                Consume(TokenType.Semicolon);
-                break;
         }
     }
-}
-    
+
     private void ParseExpression()
     {
-        throw new NotImplementedException();
+        ParseExpression1();
+
+        if (MatchAndConsume(TokenType.AssignOperator))
+        {
+            ParseExpression1();
+        }
+    }
+
+    private void ParseExpression1()
+    {
+        ParseExpression2();
+
+        while (MatchAndConsume(TokenType.OperatorL1))
+        {
+            ParseExpression2();
+        }
+    }
+
+    private void ParseExpression2()
+    {
+        ParseExpression3();
+
+        while (MatchAndConsume(TokenType.OperatorL2))
+        {
+            ParseExpression3();
+        }
+    }
+
+    private void ParseExpression3()
+    {
+        ParseExpression4();
+
+        while (MatchAndConsume(TokenType.OperatorL3))
+        {
+            ParseExpression4();
+        }
+    }
+
+    private void ParseExpression4()
+    {
+        ParsePrimary();
+
+        while (MatchAndConsume(TokenType.OperatorL4))
+        {
+            ParsePrimary();
+        }
+    }
+
+    private void ParsePrimary()
+    {
+        switch (_currentToken.Type)
+        {
+            case TokenType.LeftParen: // ( expression )
+                Consume(TokenType.LeftParen);
+                ParseExpression1();
+                Consume(TokenType.RightParen);
+                break;
+            case TokenType.Identifier:
+                ParseIdentifier();
+                break;
+            case TokenType.Integer:
+                Consume(TokenType.Integer);
+                break;
+            default:
+                throw new ParseException($"Unexpected token {_currentToken.Type}", _currentToken.Position);
+        }
+    }
+
+    private void ParseIdentifier()
+    {
+        Consume(TokenType.Identifier);
+        if (MatchAndConsume(TokenType.LeftBracket)) //array access
+        {
+            ParseExpression();
+            Consume(TokenType.RightBracket);
+        }
+        else if (MatchAndConsume(TokenType.LeftParen)) //function call
+        {
+            ParseArguments();
+            Consume(TokenType.RightParen);
+        }
+    }
+
+    private void ParseArguments()
+    {
+        if (MatchAndConsume(TokenType.RightParen)) return;
+        do
+        {
+            Consume(TokenType.Identifier);
+        } while (MatchAndConsume(TokenType.Comma));
     }
 
     private void ParseParameters()
     {
-        throw new NotImplementedException();
+        if (MatchAndConsume(TokenType.RightParen)) return;
+        do
+        {
+            Consume(TokenType.Type);
+            Consume(TokenType.Identifier);
+        } while (MatchAndConsume(TokenType.Comma));
     }
 
     private void ParseMainFunction()
     {
-        throw new NotImplementedException();
+        Consume(TokenType.Main);
+        Consume(TokenType.LeftParen);
+        Consume(TokenType.RightParen);
+        Consume(TokenType.LeftCurly);
+        ParseStatements();
+        Consume(TokenType.RightCurly);
     }
 }
 
 internal class ParseException : Exception
 {
-    public ParseException(string s, int currentTokenLineNumber)
+    public ParseException(string message, int currentTokenLineNumber)
+        : base($"Parse error at position {currentTokenLineNumber}: {message}")
     {
-        //implement this
-        
     }
 }

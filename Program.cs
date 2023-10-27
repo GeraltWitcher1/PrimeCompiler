@@ -6,19 +6,30 @@ public class Program
 {
     public static void Main()
     {
-        string inputCode = ReadCodeFromFile(@"D:\VIA 6-7 sem\CMC\Compiler\Prime\prime.txt");
+        var inputCode = ReadCodeFromFile(@"D:\VIA 6-7 sem\CMC\Compiler\Prime\prime.txt");
 
         var scanner = new Scanner(inputCode);
+        var parser = new Parser(scanner);
 
-        Token? token;
-        do
+        try
         {
-            token = scanner.GetNextToken();
-            if (token.Type != TokenType.EndOfFile)
-            {
-                Console.WriteLine($"Token: {token.Type}, Lexeme: {token.Spelling}");
-            }
-        } while (token.Type != TokenType.EndOfFile);
+            parser.ParseProgram();
+            Console.WriteLine("Parsing successful");
+        }
+        catch (ParseException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        
+        // Token? token;
+        // do
+        // {
+        //     token = scanner.GetNextToken();
+        //     if (token.Type != TokenType.EndOfFile)
+        //     {
+        //         Console.WriteLine($"Token: {token.Type}, Lexeme: {token.Spelling}");
+        //     }
+        // } while (token.Type != TokenType.EndOfFile);
     }
     private static string ReadCodeFromFile(string filePath)
     {

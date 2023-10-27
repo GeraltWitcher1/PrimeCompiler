@@ -30,6 +30,24 @@ public enum TokenType
     EndOfFile,
     Error,
     // Add more token types as needed
+    AssignOperator,
+    BitwiseAnd,
+    BitwiseOr,
+    Equal,
+    NotEqual,
+    GreaterEqual,
+    LessEqual,
+    LessThan,
+    GreaterThan,
+    Plus,
+    Minus,
+    Multiply,
+    Divide,
+    Modulo,
+    OperatorL1,
+    OperatorL2,
+    OperatorL3,
+    OperatorL4
 }
 
 

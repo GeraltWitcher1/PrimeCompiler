@@ -43,4 +43,17 @@ public static class TokenFacts
         };
     }
 
+    public static TokenType GetOperatorLevel(string spelling)
+    {
+        return spelling switch
+        {
+            "&" or "|" => TokenType.OperatorL1,
+            "==" or "!=" or "<=" or ">=" or "<" or ">" => TokenType.OperatorL2,
+            "+" or "-" => TokenType.OperatorL3,
+            "*" or "/" or "%" => TokenType.OperatorL4,
+            ":=" => TokenType.AssignOperator,
+            _ => TokenType.Operator
+        };
+    }
+
 }
