@@ -1,4 +1,5 @@
-﻿using Prime.Tokens;
+﻿using Prime.AST;
+using Prime.Tokens;
 
 namespace Prime;
 
@@ -6,15 +7,21 @@ public class Program
 {
     public static void Main()
     {
-        var inputCode = ReadCodeFromFile(@"D:\VIA 6-7 sem\CMC\Compiler\Prime\prime.txt");
+
+
+
+
+        var inputCode = ReadCodeFromFile(@"C:\Users\klavs\Source\Repos\GeraltWitcher1\PrimeCompiler\prime.txt");
 
         var scanner = new Scanner(inputCode);
-        var parser = new Parser(scanner);
+        var parser = new ParserAST(scanner);
 
         try
         {
-            parser.ParseProgram();
+            ProgramNode astRoot = parser.ParseProgram();
             Console.WriteLine("Parsing successful");
+            PrintAstVisitor printVisitor = new PrintAstVisitor();
+            astRoot.Accept(printVisitor);
         }
         catch (ParseException ex)
         {
