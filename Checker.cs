@@ -108,12 +108,29 @@ namespace Prime
         public void Visit(AssignmentExpressionNode node)
         {
             node.Identifier?.Accept(this);
-            if (!_scopes.Peek().IsVariableDefined(node.Identifier.Name))
+
+            // Check if the variable on the left-hand side of the assignment is declared
+            if (!IsVariableDeclaredInScope(node.Identifier.Name))
             {
-                throw new Exception($"Variable '{node.Identifier.Name}' is not defined.");
+                throw new Exception($"Variable '{node.Identifier.Name}' is not defined in the current or any outer scope.");
             }
+
+            // Now check the right-hand side expression
             node.RightHandSide?.Accept(this);
         }
+
+        private bool IsVariableDeclaredInScope(string variableName)
+        {
+            foreach (var scope in _scopes)
+            {
+                if (scope.IsVariableDefined(variableName))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
 
         public void Visit(BinaryExpressionNode node)
         {
@@ -123,13 +140,28 @@ namespace Prime
 
         public void Visit(IdentifierNode node)
         {
-            if (!_symbolTable.IsNameDefined(node.Name))
+            if (!IsIdentifierDefinedInScope(node.Name))
             {
-                throw new Exception($"Identifier '{node.Name}' is not defined.");
+                throw new Exception($"Identifier '{node.Name}' is not defined in the current or any outer scope.");
             }
             node.Indices.ForEach(index => index.Accept(this));
             node.Arguments?.ForEach(arg => arg.Accept(this));
         }
+
+        private bool IsIdentifierDefinedInScope(string identifierName)
+        {
+            // Check in the current scope and all outer scopes
+            foreach (var scope in _scopes)
+            {
+                if (scope.IsVariableDefined(identifierName))
+                {
+                    return true;
+                }
+            }
+            // Additionally, check for function names at the global scope
+            return _symbolTable.IsNameDefined(identifierName);
+        }
+
 
         public void Visit(LiteralNode node)
         {
@@ -143,12 +175,54 @@ namespace Prime
 
         public void Visit(StatementNode node)
         {
-           
+
+
+            switch (node)
+            {
+                case VariableDeclarationNode variableDeclarationNode:
+                    Visit(variableDeclarationNode);
+                    break;
+                case IfStatementNode ifStatementNode:
+                    Visit(ifStatementNode);
+                    break;
+                case ForLoopNode forLoopNode:
+                    Visit(forLoopNode);
+                    break;
+                case ReturnStatementNode returnStatementNode:
+                    Visit(returnStatementNode);
+                    break;
+                case ExpressionStatementNode expressionStatementNode:
+                    Visit(expressionStatementNode);
+                    break;
+                // Add cases for other StatementNode subclasses
+                default:
+                    throw new Exception("Not Recognized");
+            }
+
         }
 
         public void Visit(ExpressionNode node)
         {
-            
+
+            switch (node)
+            {
+                case AssignmentExpressionNode assignmentExpressionNode:
+                    Visit(assignmentExpressionNode);
+                    break;
+                case BinaryExpressionNode binaryExpressionNode:
+                    Visit(binaryExpressionNode);
+                    break;
+                case IdentifierNode identifierNode:
+                    Visit(identifierNode);
+                    break;
+                case LiteralNode literalNode:
+                    Visit(literalNode);
+                    break;
+                // Add cases for other ExpressionNode subclasses
+                default:
+                    throw new Exception("Not Recognized");
+            }
+
         }
 
         // Other Visit methods...
