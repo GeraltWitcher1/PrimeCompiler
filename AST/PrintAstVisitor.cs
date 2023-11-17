@@ -137,13 +137,35 @@
             DecreaseIndent();
         }
 
+        public void Visit(FunctionCallNode node)
+        {
+            PrintIndented($"Function Call: {node.FunctionName}");
+            IncreaseIndent();
+            PrintIndented("Arguments:");
+            IncreaseIndent();
+            foreach (var arg in node.Arguments)
+            {
+                arg.Accept(this);
+            }
+            DecreaseIndent();
+            DecreaseIndent();
+        }
+
         public void Visit(IdentifierNode node)
         {
             PrintIndented($"Identifier: {node.Name}");
-            IncreaseIndent();
-            node.Indices.ForEach(index => index.Accept(this));
-            node.Arguments?.ForEach(arg => arg.Accept(this));
-            DecreaseIndent();
+            if (node.Indices.Any())
+            {
+                IncreaseIndent();
+                foreach (var index in node.Indices)
+                {
+                    PrintIndented("Index:");
+                    IncreaseIndent();
+                    index.Accept(this);
+                    DecreaseIndent();
+                }
+                DecreaseIndent();
+            }
         }
 
         public void Visit(LiteralNode node)
@@ -205,6 +227,9 @@
                     break;
                 case LiteralNode literalNode:
                     Visit(literalNode);
+                    break;
+                case FunctionCallNode functionCallNode:
+                    Visit(functionCallNode);
                     break;
                 // Add cases for other ExpressionNode subclasses
                 default:

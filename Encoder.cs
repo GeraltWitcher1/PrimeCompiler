@@ -1,4 +1,4 @@
-﻿using Prime.AST;
+﻿using Prime.AST; // Assuming this is where your AST classes are defined
 using System;
 using System.IO;
 
@@ -36,31 +36,18 @@ namespace Prime
             Machine.Code[address].D = d;
         }
 
-        // Add more methods for handling specific AST nodes
-        // ...
-
-        public void Visit(ProgramNode node)
+        private int DisplayRegister(int currentLevel, int entityLevel)
         {
-            _currentLevel = 0;
-
-            // Process the program node
-            // ...
-
-            Emit(Machine.HaltOp, 0, 0, 0);
+            if (entityLevel == 0)
+                return Machine.SBr;
+            else if (currentLevel - entityLevel <= 6)
+                return Machine.LBr + currentLevel - entityLevel;
+            else
+            {
+                Console.WriteLine("Accessing across too many levels");
+                return Machine.L6r;
+            }
         }
-
-        public void Visit(FunctionDeclarationNode node)
-        {
-            // Handle function declaration
-            // ...
-
-            _currentLevel++;
-            // Process function parameters and body
-            _currentLevel--;
-        }
-
-        // Implement other Visit methods for handling different AST nodes
-        // ...
 
         public void SaveTargetProgram(string fileName)
         {
@@ -69,15 +56,24 @@ namespace Prime
                 using (var outStream = new BinaryWriter(new FileStream(fileName, FileMode.Create)))
                 {
                     for (int i = Machine.CB; i < _nextAddress; i++)
-                    {
                         Machine.Code[i].Write(outStream);
-                    }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Trouble writing " + fileName + ": " + ex.Message);
+                Console.WriteLine($"Trouble writing {fileName}: {ex.Message}");
             }
+        }
+
+        // Implement IAstVisitor methods
+        public void Visit(ProgramNode node)
+        {
+            // Implementation logic
+        }
+
+        public void Visit(FunctionDeclarationNode node)
+        {
+            throw new NotImplementedException();
         }
 
         public void Visit(ParameterNode node)
@@ -120,7 +116,9 @@ namespace Prime
             throw new NotImplementedException();
         }
 
-        // Additional helper methods as needed
-        // ...
+        // ... Implement other methods from the IAstVisitor interface
     }
+
+    // Assuming Instruction is a class with properties Op, N, R, D, and a Write method
+
 }

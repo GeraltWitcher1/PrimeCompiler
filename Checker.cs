@@ -138,14 +138,36 @@ namespace Prime
             node.Right?.Accept(this);
         }
 
+        public void Visit(FunctionCallNode node)
+        {
+            if (!_symbolTable.TryGetFunctionByName(node.FunctionName, out var function))
+            {
+                throw new Exception($"Function '{node.FunctionName}' is not defined.");
+            }
+            if (node.Arguments.Count != function!.Parameters.Count)
+            {
+                throw new Exception($"Function '{node.FunctionName}' is called with incorrect number of arguments.");
+            }
+
+            // Optionally, check the types of arguments
+
+            foreach (var arg in node.Arguments)
+            {
+                arg.Accept(this);
+            }
+        }
+
         public void Visit(IdentifierNode node)
         {
-            if (!IsIdentifierDefinedInScope(node.Name))
+            if (!IsVariableDeclaredInScope(node.Name))
             {
-                throw new Exception($"Identifier '{node.Name}' is not defined in the current or any outer scope.");
+                throw new Exception($"Variable '{node.Name}' is not defined in the current or any outer scope.");
             }
-            node.Indices.ForEach(index => index.Accept(this));
-            node.Arguments?.ForEach(arg => arg.Accept(this));
+
+            foreach (var index in node.Indices)
+            {
+                index.Accept(this); // Check indices if it's an array access
+            }
         }
 
         private bool IsIdentifierDefinedInScope(string identifierName)
@@ -218,6 +240,9 @@ namespace Prime
                 case LiteralNode literalNode:
                     Visit(literalNode);
                     break;
+                case FunctionCallNode functionCallNode:
+                    Visit(functionCallNode);
+                    break;
                 // Add cases for other ExpressionNode subclasses
                 default:
                     throw new Exception("Not Recognized");
@@ -240,6 +265,17 @@ namespace Prime
                 }
                 _functions[name] = function;
                 return true;
+            }
+            
+            public bool TryGetFunctionByName(string name,out FunctionDeclarationNode? function)
+            {
+                if (_functions.ContainsKey(name))
+                {
+                    function = _functions[name];
+                    return true;
+                }
+                function = null;
+                return false;
             }
 
             public bool IsNameDefined(string name)

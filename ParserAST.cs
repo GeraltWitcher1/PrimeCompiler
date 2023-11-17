@@ -292,7 +292,7 @@ namespace Prime
             }
         }
 
-        private IdentifierNode ParseIdentifier()
+        private ExpressionNode ParseIdentifier()
         {
             var identifier = new IdentifierNode { Name = Consume(TokenType.Identifier).Spelling };
 
@@ -303,10 +303,14 @@ namespace Prime
             }
             else if (MatchAndConsume(TokenType.LeftParen)) //function call
             {
-                identifier.Arguments = ParseArguments();
+                var node = new FunctionCallNode()
+                {
+                    FunctionName= identifier.Name,
+                    Arguments = ParseArguments()
+                };
                 Consume(TokenType.RightParen);
+                return node;
             }
-
             return identifier;
         }
 

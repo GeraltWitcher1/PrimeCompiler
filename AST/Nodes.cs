@@ -136,7 +136,17 @@ namespace Prime.AST
     {
         public string Name { get; set; }
         public List<ExpressionNode> Indices { get; set; } = new List<ExpressionNode>();
-        public List<ExpressionNode> Arguments { get; internal set; }
+
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+    }
+
+    public class FunctionCallNode : ExpressionNode
+    {
+        public string FunctionName { get; set; }
+        public List<ExpressionNode> Arguments { get; set; } = new List<ExpressionNode>();
 
         public override void Accept(IAstVisitor visitor)
         {
