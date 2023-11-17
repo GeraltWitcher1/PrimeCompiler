@@ -84,11 +84,58 @@ namespace Prime.AST
             visitor.Visit(this);
         }
     }
+    public class VariableDeclarationNode : StatementNode
+    {
+        public TypeNode Type { get; set; }
+        public string Identifier { get; set; }
+        public ExpressionNode Initializer { get; set; }
 
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+    }
+
+    public class IfStatementNode : StatementNode
+    {
+        public ExpressionNode Condition { get; set; }
+        public List<StatementNode> IfBranch { get; set; } = new List<StatementNode>();
+        public List<StatementNode> ElseBranch { get; set; } = new List<StatementNode>();
+
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+    }
+
+    public class ForLoopNode : StatementNode
+    {
+        public string Identifier { get; set; }
+        public ExpressionNode Initializer { get; set; }
+        public ExpressionNode Condition { get; set; }
+        public ExpressionNode Increment { get; set; }
+        public List<StatementNode> Statements { get; set; } = new List<StatementNode>();
+
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+    }
+
+    public class ReturnStatementNode : StatementNode
+    {
+        public ExpressionNode ReturnValue { get; set; }
+
+        public override void Accept(IAstVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+    }
     public class IdentifierNode : ExpressionNode
     {
         public string Name { get; set; }
         public List<ExpressionNode> Indices { get; set; } = new List<ExpressionNode>();
+        public List<ExpressionNode> Arguments { get; internal set; }
 
         public override void Accept(IAstVisitor visitor)
         {
