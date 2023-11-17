@@ -21,7 +21,7 @@ public class Parser
             throw new ParseException("Cannot define non functions at outer scope", _currentToken.Position);
     }
 
-    private void Consume(TokenType expectedType, string? expectedSpelling = null)
+    private Token Consume(TokenType expectedType, string? expectedSpelling = null)
     {
         if (_currentToken.Type != expectedType ||
             (expectedSpelling != null && _currentToken.Spelling != expectedSpelling))
@@ -31,7 +31,9 @@ public class Parser
             throw new ParseException($"Syntax error: expected {expected} but found {actual}", _currentToken.Position);
         }
 
+        var consumedToken = _currentToken;
         _currentToken = _scanner.GetNextToken();
+        return consumedToken;
     }
 
     private bool MatchAndConsume(TokenType expectedType)
@@ -250,13 +252,5 @@ public class Parser
         Consume(TokenType.LeftCurly);
         ParseStatements();
         Consume(TokenType.RightCurly);
-    }
-}
-
-internal class ParseException : Exception
-{
-    public ParseException(string message, int currentTokenLineNumber)
-        : base($"Parse error at position {currentTokenLineNumber}: {message}")
-    {
     }
 }

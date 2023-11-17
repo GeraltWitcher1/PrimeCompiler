@@ -51,7 +51,7 @@ public static class TokenFacts
             "==" or "!=" or "<=" or ">=" or "<" or ">" => TokenType.OperatorL2,
             "+" or "-" => TokenType.OperatorL3,
             "*" or "/" or "%" => TokenType.OperatorL4,
-            ":=" => TokenType.AssignOperator,
+            ":=" or "=" => TokenType.AssignOperator,
             _ => TokenType.Operator
         };
     }
