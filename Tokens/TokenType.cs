@@ -11,7 +11,6 @@ public enum TokenType
     If,
     Else,
     For,
-    Main,
     Integer,
     Char,
     Bool,

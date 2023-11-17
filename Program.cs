@@ -22,6 +22,8 @@ public class Program
             Console.WriteLine("Parsing successful");
             PrintAstVisitor printVisitor = new PrintAstVisitor();
             astRoot.Accept(printVisitor);
+            Checker checker = new Checker();
+            astRoot.Accept(checker);
         }
         catch (ParseException ex)
         {

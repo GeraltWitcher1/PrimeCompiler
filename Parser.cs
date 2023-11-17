@@ -49,13 +49,6 @@ public class Parser
         while (_currentToken.Type == TokenType.Func)
         {
             Consume(TokenType.Func);
-
-            if (_currentToken.Type == TokenType.Main)
-            {
-                ParseMainFunction();
-                return;
-            }
-
             Consume(TokenType.Identifier);
             Consume(TokenType.LeftParen);
 
@@ -244,13 +237,4 @@ public class Parser
         } while (MatchAndConsume(TokenType.Comma));
     }
 
-    private void ParseMainFunction()
-    {
-        Consume(TokenType.Main);
-        Consume(TokenType.LeftParen);
-        Consume(TokenType.RightParen);
-        Consume(TokenType.LeftCurly);
-        ParseStatements();
-        Consume(TokenType.RightCurly);
-    }
 }

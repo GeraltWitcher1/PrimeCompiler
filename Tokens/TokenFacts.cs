@@ -13,7 +13,6 @@ public static class TokenFacts
         {"if", TokenType.If},
         {"else", TokenType.Else},
         {"for", TokenType.For},
-        {"main", TokenType.Main}
     };
 
     public static Token GetKeywordToken(string lexeme, int position)

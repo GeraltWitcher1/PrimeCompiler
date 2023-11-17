@@ -55,14 +55,9 @@ namespace Prime
                 var functionDeclaration = new FunctionDeclarationNode();
                 Consume(TokenType.Func);
 
-                if (_currentToken.Type == TokenType.Main)
-                {
-                    ParseMainFunction(functionDeclaration);
-                    program.FunctionDeclarations.Add(functionDeclaration);
-                    return;
-                }
-
                 functionDeclaration.Name = Consume(TokenType.Identifier).Spelling;
+
+               
                 Consume(TokenType.LeftParen);
 
                 if (_currentToken.Type == TokenType.Type)
@@ -351,15 +346,6 @@ namespace Prime
             return new TypeNode { TypeName = Consume(TokenType.Type).Spelling };
         }
 
-        private void ParseMainFunction(FunctionDeclarationNode functionDeclaration)
-        {
-            Consume(TokenType.Main);
-            Consume(TokenType.LeftParen);
-            Consume(TokenType.RightParen);
-            Consume(TokenType.LeftCurly);
-            functionDeclaration.Statements = ParseStatements();
-            Consume(TokenType.RightCurly);
-        }
     }
 
     internal class ParseException : Exception
