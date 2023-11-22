@@ -1,5 +1,4 @@
 ﻿using Prime.AST;
-using Prime.Tokens;
 
 namespace Prime;
 
@@ -7,11 +6,7 @@ public class Program
 {
     public static void Main()
     {
-
-
-
-
-        var inputCode = ReadCodeFromFile(@"C:\Users\klavs\Source\Repos\GeraltWitcher1\PrimeCompiler\prime.txt");
+        var inputCode = ReadCodeFromFile(@"D:\VIA 6-7 sem\CMC\Compiler\Prime\prime.txt");
 
         var scanner = new Scanner(inputCode);
         var parser = new ParserAST(scanner);

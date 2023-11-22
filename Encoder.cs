@@ -1,6 +1,4 @@
-﻿using Prime.AST; // Assuming this is where your AST classes are defined
-using System;
-using System.IO;
+﻿using Prime.AST;
 
 namespace Prime
 {
@@ -40,13 +38,10 @@ namespace Prime
         {
             if (entityLevel == 0)
                 return Machine.SBr;
-            else if (currentLevel - entityLevel <= 6)
+            if (currentLevel - entityLevel <= 6)
                 return Machine.LBr + currentLevel - entityLevel;
-            else
-            {
-                Console.WriteLine("Accessing across too many levels");
-                return Machine.L6r;
-            }
+            Console.WriteLine("Accessing across too many levels");
+            return Machine.L6r;
         }
 
         public void SaveTargetProgram(string fileName)
@@ -65,60 +60,164 @@ namespace Prime
             }
         }
 
-        // Implement IAstVisitor methods
-        public void Visit(ProgramNode node)
+        public void Visit(ProgramNode node, object? arg = null)
         {
-            // Implementation logic
+            foreach (var functionDeclaration in node.FunctionDeclarations)
+            {
+                functionDeclaration.Accept(this);
+            }
         }
 
-        public void Visit(FunctionDeclarationNode node)
+        public void Visit(FunctionDeclarationNode node, object? arg = null)
+        {
+            node.Address = new Address(_currentLevel, _nextAddress);
+            if (arg is null)
+            {
+                throw new Exception("Address required");
+            }
+            var adr = new Address( (Address) arg );
+
+            int size = 1; //TODO replace with 
+            
+            // Emit(Machine.CallOp, 0, Machine.PBr, Machine.PBr + 1);
+            _currentLevel++;
+
+            // Parameters handling
+            foreach (var parameter in node.Parameters)
+            {
+                parameter.Accept(this);
+            }
+
+            // Visit the function's body
+            foreach (var statement in node.Statements)
+            {
+                statement.Accept(this);
+            }
+
+            Emit(Machine.ReturnOp, 0, 0, 0);
+            _currentLevel--;
+        }
+
+        public void Visit(ParameterNode node, object? arg = null)
+        {
+            // Parameters are handled during function declaration
+        }
+
+        public void Visit(ExpressionStatementNode node, object? arg = null)
         {
             throw new NotImplementedException();
         }
 
-        public void Visit(ParameterNode node)
+        public void Visit(AssignmentExpressionNode node, object? arg = null)
         {
             throw new NotImplementedException();
         }
 
-        public void Visit(StatementNode node)
+        public void Visit(BinaryExpressionNode node, object? arg = null)
+        {
+            node.Left.Accept(this, true);
+            node.Right.Accept(this, true);
+            var op = node.Operator.ToString();
+
+            switch (op)
+            {
+                case "+":
+                    Emit(Machine.CallOp, 0, Machine.PBr, Machine.AddDisplacement);
+                    break;
+                case "-":
+                    Emit(Machine.CallOp, 0, Machine.PBr, Machine.SubDisplacement);
+                    break;
+                case "*":
+                    Emit(Machine.CallOp, 0, Machine.PBr, Machine.MultDisplacement);
+                    break;
+                case "/":
+                    Emit(Machine.CallOp, 0, Machine.PBr, Machine.DivDisplacement);
+                    break;
+                default:
+                    // Handle other operators as needed
+                    throw new NotImplementedException($"Operator {op} not implemented.");
+            }
+        }
+
+        public void Visit(FunctionCallNode node, object? arg = null)
         {
             throw new NotImplementedException();
         }
 
-        public void Visit(ExpressionNode node)
+        public void Visit(VariableDeclarationNode node, object? arg = null)
+        {
+            if (node.Initializer != null)
+            {
+                node.Initializer.Accept(this);
+            }
+            else
+            {
+                // Handle the case where there's no initializer
+                // Depending on your language, you may need different instructions here
+            }
+
+            Emit(Machine.StoreOp, _currentLevel - node.Address.Level, node.Address.Displacement, 0);
+        }
+
+        public void Visit(IfStatementNode node, object? arg = null)
+        {
+            node.Condition.Accept(this);
+
+            int jumpIfAddress = _nextAddress++;
+            Emit(Machine.JumpIfOp, 0, 0, 0);
+
+            foreach (var statement in node.IfBranch)
+            {
+                statement.Accept(this);
+            }
+
+            Patch(jumpIfAddress, _nextAddress);
+
+            if (node.ElseBranch == null) return;
+            {
+                foreach (var statement in node.ElseBranch)
+                {
+                    statement.Accept(this);
+                }
+            }
+        }
+
+        public void Visit(ForLoopNode node, object? arg = null)
         {
             throw new NotImplementedException();
         }
 
-        public void Visit(AssignmentExpressionNode node)
+        public void Visit(ReturnStatementNode node, object? arg = null)
         {
             throw new NotImplementedException();
         }
 
-        public void Visit(BinaryExpressionNode node)
+        // Implement methods for other statement nodes and expression nodes...
+
+        public void Visit(IdentifierNode node, object? arg = null)
         {
             throw new NotImplementedException();
         }
 
-        public void Visit(IdentifierNode node)
+        public void Visit(LiteralNode node, object? arg = null)
         {
-            throw new NotImplementedException();
+            if (node.Value is int val)
+            {
+                Emit(Machine.LoadLOp, 0, 0, val);
+            }
+            else
+            {
+                // Handle other literal types
+            }
         }
 
-        public void Visit(LiteralNode node)
+        public void Visit(TypeNode node, object? arg = null)
         {
-            throw new NotImplementedException();
-        }
-
-        public void Visit(TypeNode node)
-        {
-            throw new NotImplementedException();
+            // Handle type nodes if necessary
         }
 
         // ... Implement other methods from the IAstVisitor interface
     }
 
     // Assuming Instruction is a class with properties Op, N, R, D, and a Write method
-
 }

@@ -1,21 +1,18 @@
 ﻿using Prime.AST;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Prime
 {
     public class Checker : IAstVisitor
     {
-        private SymbolTable _symbolTable = new SymbolTable();
-        private Stack<Scope> _scopes = new Stack<Scope>();
+        private SymbolTable _symbolTable = new();
+        private Stack<Scope> _scopes = new();
 
         public Checker()
         {
             _scopes.Push(new Scope()); // Global scope
         }
 
-        public void Visit(ProgramNode node)
+        public void Visit(ProgramNode node, object? arg = null)
         {
             foreach (var func in node.FunctionDeclarations)
             {
@@ -23,7 +20,7 @@ namespace Prime
             }
         }
 
-        public void Visit(FunctionDeclarationNode node)
+        public void Visit(FunctionDeclarationNode node, object? arg = null)
         {
             if (!_symbolTable.TryAddFunction(node.Name, node))
             {
@@ -35,14 +32,16 @@ namespace Prime
             {
                 param.Accept(this);
             }
+
             foreach (var statement in node.Statements)
             {
                 statement.Accept(this);
             }
+
             _scopes.Pop();
         }
 
-        public void Visit(ParameterNode node)
+        public void Visit(ParameterNode node, object? arg = null)
         {
             if (!_scopes.Peek().TryAddVariable(node.Name, node))
             {
@@ -50,16 +49,17 @@ namespace Prime
             }
         }
 
-        public void Visit(VariableDeclarationNode node)
+        public void Visit(VariableDeclarationNode node, object? arg = null)
         {
             if (!_scopes.Peek().TryAddVariable(node.Identifier, node))
             {
                 throw new Exception($"Variable '{node.Identifier}' is already defined in this scope.");
             }
+
             node.Initializer?.Accept(this);
         }
 
-        public void Visit(IfStatementNode node)
+        public void Visit(IfStatementNode node, object? arg = null)
         {
             node.Condition?.Accept(this);
             _scopes.Push(new Scope()); // If branch scope
@@ -67,6 +67,7 @@ namespace Prime
             {
                 statement.Accept(this);
             }
+
             _scopes.Pop();
             if (node.ElseBranch != null)
             {
@@ -75,16 +76,17 @@ namespace Prime
                 {
                     statement.Accept(this);
                 }
+
                 _scopes.Pop();
             }
         }
 
-        public void Visit(ForLoopNode node)
+        public void Visit(ForLoopNode node, object? arg = null)
         {
             _scopes.Push(new Scope()); // For loop scope
 
-            if(!_scopes.Peek().TryAddVariable(node.Identifier, node))
-    {
+            if (!_scopes.Peek().TryAddVariable(node.Identifier, node))
+            {
                 throw new Exception($"Variable '{node.Identifier}' is already defined in this scope.");
             }
 
@@ -95,31 +97,32 @@ namespace Prime
             _scopes.Pop();
         }
 
-        public void Visit(ReturnStatementNode node)
+        public void Visit(ReturnStatementNode node, object? arg = null)
         {
             node.ReturnValue?.Accept(this);
         }
 
-        public void Visit(ExpressionStatementNode node)
+        public void Visit(ExpressionStatementNode node, object? arg = null)
         {
             node.Expression?.Accept(this);
         }
 
-        public void Visit(AssignmentExpressionNode node)
+        public void Visit(AssignmentExpressionNode node, object? arg = null)
         {
             node.Identifier?.Accept(this);
 
             // Check if the variable on the left-hand side of the assignment is declared
             if (!IsVariableDeclaredInScope(node.Identifier.Name))
             {
-                throw new Exception($"Variable '{node.Identifier.Name}' is not defined in the current or any outer scope.");
+                throw new Exception(
+                    $"Variable '{node.Identifier.Name}' is not defined in the current or any outer scope.");
             }
 
             // Now check the right-hand side expression
             node.RightHandSide?.Accept(this);
         }
 
-        private bool IsVariableDeclaredInScope(string variableName)
+        private bool IsVariableDeclaredInScope(string variableName, object? arg = null)
         {
             foreach (var scope in _scopes)
             {
@@ -130,15 +133,14 @@ namespace Prime
             }
             return false;
         }
-
-
-        public void Visit(BinaryExpressionNode node)
+        
+        public void Visit(BinaryExpressionNode node, object? arg = null)
         {
             node.Left?.Accept(this);
             node.Right?.Accept(this);
         }
 
-        public void Visit(FunctionCallNode node)
+        public void Visit(FunctionCallNode node, object? param = null)
         {
             if (!_symbolTable.TryGetFunctionByName(node.FunctionName, out var function))
             {
@@ -157,7 +159,7 @@ namespace Prime
             }
         }
 
-        public void Visit(IdentifierNode node)
+        public void Visit(IdentifierNode node, object? arg = null)
         {
             if (!IsVariableDeclaredInScope(node.Name))
             {
@@ -170,7 +172,7 @@ namespace Prime
             }
         }
 
-        private bool IsIdentifierDefinedInScope(string identifierName)
+        private bool IsIdentifierDefinedInScope(string identifierName, object? arg = null)
         {
             // Check in the current scope and all outer scopes
             foreach (var scope in _scopes)
@@ -180,82 +182,28 @@ namespace Prime
                     return true;
                 }
             }
+
             // Additionally, check for function names at the global scope
             return _symbolTable.IsNameDefined(identifierName);
         }
 
 
-        public void Visit(LiteralNode node)
+        public void Visit(LiteralNode node, object? arg = null)
         {
             // Literals typically don't require context checks
         }
 
-        public void Visit(TypeNode node)
+        public void Visit(TypeNode node, object? arg = null)
         {
             // Type checking logic
         }
-
-        public void Visit(StatementNode node)
-        {
-
-
-            switch (node)
-            {
-                case VariableDeclarationNode variableDeclarationNode:
-                    Visit(variableDeclarationNode);
-                    break;
-                case IfStatementNode ifStatementNode:
-                    Visit(ifStatementNode);
-                    break;
-                case ForLoopNode forLoopNode:
-                    Visit(forLoopNode);
-                    break;
-                case ReturnStatementNode returnStatementNode:
-                    Visit(returnStatementNode);
-                    break;
-                case ExpressionStatementNode expressionStatementNode:
-                    Visit(expressionStatementNode);
-                    break;
-                // Add cases for other StatementNode subclasses
-                default:
-                    throw new Exception("Not Recognized");
-            }
-
-        }
-
-        public void Visit(ExpressionNode node)
-        {
-
-            switch (node)
-            {
-                case AssignmentExpressionNode assignmentExpressionNode:
-                    Visit(assignmentExpressionNode);
-                    break;
-                case BinaryExpressionNode binaryExpressionNode:
-                    Visit(binaryExpressionNode);
-                    break;
-                case IdentifierNode identifierNode:
-                    Visit(identifierNode);
-                    break;
-                case LiteralNode literalNode:
-                    Visit(literalNode);
-                    break;
-                case FunctionCallNode functionCallNode:
-                    Visit(functionCallNode);
-                    break;
-                // Add cases for other ExpressionNode subclasses
-                default:
-                    throw new Exception("Not Recognized");
-            }
-
-        }
-
-        // Other Visit methods...
-
+        
+        
         private class SymbolTable
         {
-            private Dictionary<string, FunctionDeclarationNode> _functions = new Dictionary<string, FunctionDeclarationNode>();
-            private HashSet<string> _variables = new HashSet<string>();
+            private Dictionary<string, FunctionDeclarationNode> _functions = new();
+
+            private HashSet<string> _variables = new();
 
             public bool TryAddFunction(string name, FunctionDeclarationNode function)
             {
@@ -263,15 +211,16 @@ namespace Prime
                 {
                     return false;
                 }
+
                 _functions[name] = function;
                 return true;
             }
             
             public bool TryGetFunctionByName(string name,out FunctionDeclarationNode? function)
             {
-                if (_functions.ContainsKey(name))
+                if (_functions.TryGetValue(name, out var function1))
                 {
-                    function = _functions[name];
+                    function = function1;
                     return true;
                 }
                 function = null;
@@ -291,7 +240,7 @@ namespace Prime
 
         private class Scope
         {
-            private Dictionary<string, object> _variables = new Dictionary<string, object>();
+            private Dictionary<string, object> _variables = new();
 
             public bool TryAddVariable(string name, object variable)
             {
@@ -299,6 +248,7 @@ namespace Prime
                 {
                     return false;
                 }
+
                 _variables[name] = variable;
                 return true;
             }
