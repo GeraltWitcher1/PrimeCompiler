@@ -9,7 +9,7 @@ public class PrintAstVisitor : IAstVisitor
     }
     private void IncreaseIndent() => _indentLevel++;
     private void DecreaseIndent() => _indentLevel--;
-    public void Visit(ProgramNode node, object? arg = null)
+    public object? Visit(ProgramNode node, object? arg = null)
     {
         PrintIndented("Program");
         IncreaseIndent();
@@ -18,8 +18,9 @@ public class PrintAstVisitor : IAstVisitor
             func.Accept(this);
         }
         DecreaseIndent();
+        return null;
     }
-    public void Visit(FunctionDeclarationNode node, object? arg = null)
+    public object? Visit(FunctionDeclarationNode node, object? arg = null)
     {
         PrintIndented($"Function: {node.Name}");
         IncreaseIndent();
@@ -33,19 +34,22 @@ public class PrintAstVisitor : IAstVisitor
             statement.Accept(this);
         }
         DecreaseIndent();
+        return null;
     }
-    public void Visit(ParameterNode node, object? arg = null)
+    public object? Visit(ParameterNode node, object? arg = null)
     {
         PrintIndented($"Parameter: {node.Name} : {node.Type.TypeName}");
+        return null;
     }
-    public void Visit(VariableDeclarationNode node, object? arg = null)
+    public object? Visit(VariableDeclarationNode node, object? arg = null)
     {
         PrintIndented($"Variable Declaration: {node.Identifier} : {node.Type.TypeName}");
         IncreaseIndent();
         node.Initializer?.Accept(this);
         DecreaseIndent();
+        return null;
     }
-    public void Visit(IfStatementNode node, object? arg = null)
+    public object? Visit(IfStatementNode node, object? arg = null)
     {
         PrintIndented("If Statement");
         IncreaseIndent();
@@ -62,8 +66,9 @@ public class PrintAstVisitor : IAstVisitor
             DecreaseIndent();
         }
         DecreaseIndent();
+        return null;
     }
-    public void Visit(ForLoopNode node, object? arg = null)
+    public object? Visit(ForLoopNode node, object? arg = null)
     {
         PrintIndented($"For Loop: {node.Identifier}");
         IncreaseIndent();
@@ -72,8 +77,9 @@ public class PrintAstVisitor : IAstVisitor
         node.Increment?.Accept(this);
         node.Statements.ForEach(statement => statement.Accept(this));
         DecreaseIndent();
+        return null;
     }
-    public void Visit(ReturnStatementNode node, object? arg = null)
+    public object? Visit(ReturnStatementNode node, object? arg = null)
     {
         PrintIndented("Return Statement");
         IncreaseIndent();
@@ -89,8 +95,9 @@ public class PrintAstVisitor : IAstVisitor
             PrintIndented("No return value");
         }
         DecreaseIndent();
+        return null;
     }
-    public void Visit(ExpressionStatementNode node, object? arg = null)
+    public object? Visit(ExpressionStatementNode node, object? arg = null)
     {
         PrintIndented("Expression Statement");
         IncreaseIndent();
@@ -99,15 +106,17 @@ public class PrintAstVisitor : IAstVisitor
         node.Expression?.Accept(this);
         DecreaseIndent();
         DecreaseIndent();
+        return null;
     }
-    public void Visit(AssignmentExpressionNode node, object? arg = null)
+    public object? Visit(AssignmentExpressionNode node, object? arg = null)
     {
-        PrintIndented($"Assignment: {node.Identifier.Name}");
+        PrintIndented($"Assignment Expression: {node.Identifier.Name}");
         IncreaseIndent();
         node.RightHandSide?.Accept(this);
         DecreaseIndent();
+        return null;
     }
-    public void Visit(BinaryExpressionNode node, object? arg = null)
+    public object? Visit(BinaryExpressionNode node, object? arg = null)
     {
         PrintIndented($"Binary Expression: Operator {node.Operator}");
         IncreaseIndent();
@@ -120,8 +129,9 @@ public class PrintAstVisitor : IAstVisitor
         node.Right?.Accept(this);
         DecreaseIndent();
         DecreaseIndent();
+        return null;
     }
-    public void Visit(FunctionCallNode node, object? param = null)
+    public object? Visit(FunctionCallNode node, object? param = null)
     {
         PrintIndented($"Function Call: {node.FunctionName}");
         IncreaseIndent();
@@ -133,8 +143,9 @@ public class PrintAstVisitor : IAstVisitor
         }
         DecreaseIndent();
         DecreaseIndent();
+        return null;
     }
-    public void Visit(IdentifierNode node, object? arg = null)
+    public object? Visit(IdentifierNode node, object? arg = null)
     {
         PrintIndented($"Identifier: {node.Name}");
         if (node.Indices.Any())
@@ -149,22 +160,18 @@ public class PrintAstVisitor : IAstVisitor
             }
             DecreaseIndent();
         }
+        return null;
     }
-    public void Visit(LiteralNode node, object? arg = null)
+    public object? Visit(LiteralNode node, object? arg = null)
     {
         PrintIndented($"Literal: {node.Value}");
+        return null;
     }
-    public void Visit(TypeNode node, object? arg = null)
+    public object? Visit(TypeNode node, object? arg = null)
     {
         PrintIndented($"Type: {node.TypeName}");
+        return null;
     }
-    public void Visit(StatementNode node, object? arg = null)
-    {
-                    
-    }
-    public void Visit(ExpressionNode node, object? arg = null)
-    {
-                    
-    }
+ 
          
 }

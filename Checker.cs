@@ -12,15 +12,17 @@ namespace Prime
             _scopes.Push(new Scope()); // Global scope
         }
 
-        public void Visit(ProgramNode node, object? arg = null)
+        public object? Visit(ProgramNode node, object? arg = null)
         {
             foreach (var func in node.FunctionDeclarations)
             {
                 func.Accept(this);
             }
+
+            return null;
         }
 
-        public void Visit(FunctionDeclarationNode node, object? arg = null)
+        public object? Visit(FunctionDeclarationNode node, object? arg = null)
         {
             if (!_symbolTable.TryAddFunction(node.Name, node))
             {
@@ -39,17 +41,20 @@ namespace Prime
             }
 
             _scopes.Pop();
+            return null;
         }
 
-        public void Visit(ParameterNode node, object? arg = null)
+        public object? Visit(ParameterNode node, object? arg = null)
         {
             if (!_scopes.Peek().TryAddVariable(node.Name, node))
             {
                 throw new Exception($"Parameter '{node.Name}' is already defined in this scope.");
             }
+
+            return null;
         }
 
-        public void Visit(VariableDeclarationNode node, object? arg = null)
+        public object? Visit(VariableDeclarationNode node, object? arg = null)
         {
             if (!_scopes.Peek().TryAddVariable(node.Identifier, node))
             {
@@ -57,9 +62,10 @@ namespace Prime
             }
 
             node.Initializer?.Accept(this);
+            return null;
         }
 
-        public void Visit(IfStatementNode node, object? arg = null)
+        public object? Visit(IfStatementNode node, object? arg = null)
         {
             node.Condition?.Accept(this);
             _scopes.Push(new Scope()); // If branch scope
@@ -79,9 +85,11 @@ namespace Prime
 
                 _scopes.Pop();
             }
+
+            return null;
         }
 
-        public void Visit(ForLoopNode node, object? arg = null)
+        public object? Visit(ForLoopNode node, object? arg = null)
         {
             _scopes.Push(new Scope()); // For loop scope
 
@@ -95,19 +103,22 @@ namespace Prime
             node.Increment?.Accept(this);
             node.Statements.ForEach(statement => statement.Accept(this));
             _scopes.Pop();
+            return null;
         }
 
-        public void Visit(ReturnStatementNode node, object? arg = null)
+        public object? Visit(ReturnStatementNode node, object? arg = null)
         {
             node.ReturnValue?.Accept(this);
+            return null;
         }
 
-        public void Visit(ExpressionStatementNode node, object? arg = null)
+        public object? Visit(ExpressionStatementNode node, object? arg = null)
         {
             node.Expression?.Accept(this);
+            return null;
         }
 
-        public void Visit(AssignmentExpressionNode node, object? arg = null)
+        public object? Visit(AssignmentExpressionNode node, object? arg = null)
         {
             node.Identifier?.Accept(this);
 
@@ -120,6 +131,7 @@ namespace Prime
 
             // Now check the right-hand side expression
             node.RightHandSide?.Accept(this);
+            return null;
         }
 
         private bool IsVariableDeclaredInScope(string variableName, object? arg = null)
@@ -134,13 +146,14 @@ namespace Prime
             return false;
         }
         
-        public void Visit(BinaryExpressionNode node, object? arg = null)
+        public object? Visit(BinaryExpressionNode node, object? arg = null)
         {
             node.Left?.Accept(this);
             node.Right?.Accept(this);
+            return null;
         }
 
-        public void Visit(FunctionCallNode node, object? param = null)
+        public object? Visit(FunctionCallNode node, object? param = null)
         {
             if (!_symbolTable.TryGetFunctionByName(node.FunctionName, out var function))
             {
@@ -151,15 +164,17 @@ namespace Prime
                 throw new Exception($"Function '{node.FunctionName}' is called with incorrect number of arguments.");
             }
 
+            node.FunctionDeclarationNode = function;
             // Optionally, check the types of arguments
 
             foreach (var arg in node.Arguments)
             {
                 arg.Accept(this);
             }
+            return null;
         }
 
-        public void Visit(IdentifierNode node, object? arg = null)
+        public object? Visit(IdentifierNode node, object? arg = null)
         {
             if (!IsVariableDeclaredInScope(node.Name))
             {
@@ -170,6 +185,7 @@ namespace Prime
             {
                 index.Accept(this); // Check indices if it's an array access
             }
+            return null;
         }
 
         private bool IsIdentifierDefinedInScope(string identifierName, object? arg = null)
@@ -188,14 +204,16 @@ namespace Prime
         }
 
 
-        public void Visit(LiteralNode node, object? arg = null)
+        public object? Visit(LiteralNode node, object? arg = null)
         {
             // Literals typically don't require context checks
+            return null;
         }
 
-        public void Visit(TypeNode node, object? arg = null)
+        public object? Visit(TypeNode node, object? arg = null)
         {
             // Type checking logic
+            return null;
         }
         
         

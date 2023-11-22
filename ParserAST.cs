@@ -56,8 +56,7 @@ namespace Prime
                 Consume(TokenType.Func);
 
                 functionDeclaration.Name = Consume(TokenType.Identifier).Spelling;
-
-               
+                
                 Consume(TokenType.LeftParen);
 
                 if (_currentToken.Type == TokenType.Type)
@@ -211,7 +210,7 @@ namespace Prime
                 var binaryExpression = new BinaryExpressionNode
                 {
                     Left = expression,
-                    Operator = _currentToken.Type,
+                    Operator = TokenType.OperatorL1,
                     Right = ParseExpression2()
                 };
                 expression = binaryExpression;
@@ -229,7 +228,7 @@ namespace Prime
                 var binaryExpression = new BinaryExpressionNode
                 {
                     Left = expression,
-                    Operator = _currentToken.Type,
+                    Operator = TokenType.OperatorL2,
                     Right = ParseExpression3()
                 };
                 expression = binaryExpression;
@@ -247,7 +246,7 @@ namespace Prime
                 var binaryExpression = new BinaryExpressionNode
                 {
                     Left = expression,
-                    Operator = _currentToken.Type,
+                    Operator = TokenType.OperatorL3,
                     Right = ParseExpression4()
                 };
                 expression = binaryExpression;
@@ -265,7 +264,7 @@ namespace Prime
                 var binaryExpression = new BinaryExpressionNode
                 {
                     Left = expression,
-                    Operator = _currentToken.Type,
+                    Operator = TokenType.OperatorL4,
                     Right = ParsePrimary()
                 };
                 expression = binaryExpression;

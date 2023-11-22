@@ -19,6 +19,13 @@ public class Program
             astRoot.Accept(printVisitor);
             Checker checker = new Checker();
             astRoot.Accept(checker);
+            Encoder encoder = new Encoder();
+            astRoot.Accept(encoder);
+
+
+            string targetName = "primetam.txt";
+            encoder.SaveTargetProgram( targetName );
+            
         }
         catch (ParseException ex)
         {

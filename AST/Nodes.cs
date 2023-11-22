@@ -4,16 +4,16 @@ namespace Prime.AST
 {
     public abstract class AstNode
     {
-        public abstract void Accept(IAstVisitor visitor, object? arg = null);
+        public abstract object? Accept(IAstVisitor visitor, object? arg = null);
     }
 
     public class ProgramNode : AstNode
     {
         public List<FunctionDeclarationNode> FunctionDeclarations { get; set; } = new();
 
-        public override void Accept(IAstVisitor visitor, object? arg = null)
+        public override object? Accept(IAstVisitor visitor, object? arg = null)
         {
-            visitor.Visit(this, arg);
+            return visitor.Visit(this, arg);
         }
     }
 
@@ -25,9 +25,9 @@ namespace Prime.AST
         public List<StatementNode> Statements { get; set; } = new();
         public Address Address { get; set; }
 
-        public override void Accept(IAstVisitor visitor, object? arg = null)
+        public override object? Accept(IAstVisitor visitor, object? arg = null)
         {
-            visitor.Visit(this, arg);
+            return visitor.Visit(this, arg);
         }
     }
 
@@ -36,9 +36,9 @@ namespace Prime.AST
         public TypeNode Type { get; set; }
         public string Name { get; set; }
 
-        public override void Accept(IAstVisitor visitor, object? arg = null)
+        public override object? Accept(IAstVisitor visitor, object? arg = null)
         {
-            visitor.Visit(this, arg);
+            return visitor.Visit(this, arg);
         }
     }
 
@@ -52,9 +52,9 @@ namespace Prime.AST
     {
         public ExpressionNode Expression { get; set; }
 
-        public override void Accept(IAstVisitor visitor, object? arg = null)
+        public override object? Accept(IAstVisitor visitor, object? arg = null)
         {
-            visitor.Visit(this, arg);
+            return visitor.Visit(this, arg);
         }
     }
 
@@ -68,9 +68,9 @@ namespace Prime.AST
         public IdentifierNode Identifier { get; set; }
         public ExpressionNode RightHandSide { get; set; }
 
-        public override void Accept(IAstVisitor visitor, object? arg = null)
+        public override object? Accept(IAstVisitor visitor, object? arg = null)
         {
-            visitor.Visit(this, arg);
+            return visitor.Visit(this, arg);
         }
     }
 
@@ -78,11 +78,12 @@ namespace Prime.AST
     {
         public ExpressionNode Left { get; set; }
         public TokenType Operator { get; set; }
+        public string OperatorSpelling { get; set; }
         public ExpressionNode Right { get; set; }
 
-        public override void Accept(IAstVisitor visitor, object? arg = null)
+        public override object? Accept(IAstVisitor visitor, object? arg = null)
         {
-            visitor.Visit(this, arg);
+            return visitor.Visit(this, arg);
         }
     }
 
@@ -90,12 +91,12 @@ namespace Prime.AST
     {
         public TypeNode Type { get; set; }
         public string Identifier { get; set; }
-        public ExpressionNode Initializer { get; set; }
+        public ExpressionNode? Initializer { get; set; }
         public Address Address { get; set; }
 
-        public override void Accept(IAstVisitor visitor, object? arg = null)
+        public override object? Accept(IAstVisitor visitor, object? arg = null)
         {
-            visitor.Visit(this, arg);
+            return visitor.Visit(this, arg);
         }
     }
 
@@ -105,9 +106,9 @@ namespace Prime.AST
         public List<StatementNode> IfBranch { get; set; } = new();
         public List<StatementNode>? ElseBranch { get; set; } = new();
 
-        public override void Accept(IAstVisitor visitor, object? arg = null)
+        public override object? Accept(IAstVisitor visitor, object? arg = null)
         {
-            visitor.Visit(this, arg);
+            return visitor.Visit(this, arg);
         }
     }
 
@@ -119,9 +120,9 @@ namespace Prime.AST
         public ExpressionNode Increment { get; set; }
         public List<StatementNode> Statements { get; set; } = new();
 
-        public override void Accept(IAstVisitor visitor, object? arg = null)
+        public override object? Accept(IAstVisitor visitor, object? arg = null)
         {
-            visitor.Visit(this, arg);
+            return visitor.Visit(this, arg);
         }
     }
 
@@ -129,9 +130,9 @@ namespace Prime.AST
     {
         public ExpressionNode? ReturnValue { get; set; }
 
-        public override void Accept(IAstVisitor visitor, object? arg = null)
+        public override object? Accept(IAstVisitor visitor, object? arg = null)
         {
-            visitor.Visit(this, arg);
+            return visitor.Visit(this, arg);
         }
     }
 
@@ -140,9 +141,9 @@ namespace Prime.AST
         public string Name { get; set; }
         public List<ExpressionNode> Indices { get; set; } = new();
 
-        public override void Accept(IAstVisitor visitor, object? arg = null)
+        public override object? Accept(IAstVisitor visitor, object? arg = null)
         {
-            visitor.Visit(this, arg);
+            return visitor.Visit(this, arg);
         }
     }
 
@@ -150,10 +151,12 @@ namespace Prime.AST
     {
         public string FunctionName { get; set; }
         public List<ExpressionNode> Arguments { get; set; } = new();
+        
+        public FunctionDeclarationNode FunctionDeclarationNode { get; set; }
 
-        public override void Accept(IAstVisitor visitor, object? arg = null)
+        public override object? Accept(IAstVisitor visitor, object? arg = null)
         {
-            visitor.Visit(this, arg);
+            return visitor.Visit(this, arg);
         }
     }
 
@@ -161,9 +164,9 @@ namespace Prime.AST
     {
         public object Value { get; set; }
 
-        public override void Accept(IAstVisitor visitor, object? arg = null)
+        public override object? Accept(IAstVisitor visitor, object? arg = null)
         {
-            visitor.Visit(this, arg);
+            return visitor.Visit(this, arg);
         }
     }
 
@@ -171,9 +174,9 @@ namespace Prime.AST
     {
         public string TypeName { get; set; } // E.g., "int", "bool", "char"
 
-        public override void Accept(IAstVisitor visitor, object? arg = null)
+        public override object? Accept(IAstVisitor visitor, object? arg = null)
         {
-            visitor.Visit(this, arg);
+            return visitor.Visit(this, arg);
         }
     }
 }
