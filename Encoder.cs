@@ -67,7 +67,8 @@ namespace Prime
             int before = _nextAddress;
             Emit( Machine.JumpOp, 0, Machine.CB, 0 );
             var size = HandleFunctionDeclarations(node.FunctionDeclarations, new Address());
-            Patch(before, _nextAddress);
+            var mainFunction = node.FunctionDeclarations.First(f => f.Name == "main");
+            Patch(before, mainFunction.Address.Displacement);
             if(size> 0)
                 Emit( Machine.PushOp, 0, 0, size );
 
@@ -114,7 +115,7 @@ namespace Prime
                 statement.Accept(this, new Address( adr, Machine.LinkDataSize ) );
             }
 
-            Emit(Machine.ReturnOp, 0, 0, 0);
+            Emit(Machine.ReturnOp, 1, 0, size);
             _currentLevel--;
             return arg;
         }
@@ -158,9 +159,9 @@ namespace Prime
         {
             node.Left.Accept(this, arg);
             node.Right.Accept(this, arg);
-            var op = "+";
-            // var op = node.Operator.ToString();
-            var valueNeeded = (bool) (arg ?? false);
+            // var op = "+";
+            var op = node.OperatorSpelling;
+            var valueNeeded = arg is bool;
             if (valueNeeded)
             {
                 switch (op)

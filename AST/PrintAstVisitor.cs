@@ -118,7 +118,7 @@ public class PrintAstVisitor : IAstVisitor
     }
     public object? Visit(BinaryExpressionNode node, object? arg = null)
     {
-        PrintIndented($"Binary Expression: Operator {node.Operator}");
+        PrintIndented($"Binary Expression: Operator {node.OperatorSpelling}");
         IncreaseIndent();
         PrintIndented("Left:");
         IncreaseIndent();

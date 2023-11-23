@@ -205,12 +205,14 @@ namespace Prime
         {
             var expression = ParseExpression2();
 
+            var spelling = _currentToken.Spelling;
             while (MatchAndConsume(TokenType.OperatorL1))
             {
                 var binaryExpression = new BinaryExpressionNode
                 {
                     Left = expression,
                     Operator = TokenType.OperatorL1,
+                    OperatorSpelling = spelling,
                     Right = ParseExpression2()
                 };
                 expression = binaryExpression;
@@ -223,12 +225,14 @@ namespace Prime
         {
             var expression = ParseExpression3();
 
+            var spelling = _currentToken.Spelling;
             while (MatchAndConsume(TokenType.OperatorL2))
             {
                 var binaryExpression = new BinaryExpressionNode
                 {
                     Left = expression,
                     Operator = TokenType.OperatorL2,
+                    OperatorSpelling = spelling,
                     Right = ParseExpression3()
                 };
                 expression = binaryExpression;
@@ -241,12 +245,14 @@ namespace Prime
         {
             var expression = ParseExpression4();
 
+            var spelling = _currentToken.Spelling;
             while (MatchAndConsume(TokenType.OperatorL3))
             {
                 var binaryExpression = new BinaryExpressionNode
                 {
                     Left = expression,
                     Operator = TokenType.OperatorL3,
+                    OperatorSpelling = spelling,
                     Right = ParseExpression4()
                 };
                 expression = binaryExpression;
@@ -259,12 +265,14 @@ namespace Prime
         {
             var expression = ParsePrimary();
 
+            var spelling = _currentToken.Spelling;
             while (MatchAndConsume(TokenType.OperatorL4))
             {
                 var binaryExpression = new BinaryExpressionNode
                 {
                     Left = expression,
                     Operator = TokenType.OperatorL4,
+                    OperatorSpelling = spelling,
                     Right = ParsePrimary()
                 };
                 expression = binaryExpression;

@@ -23,7 +23,7 @@ public class Program
             astRoot.Accept(encoder);
 
 
-            string targetName = "primetam.txt";
+            string targetName = "prime.tam";
             encoder.SaveTargetProgram( targetName );
             
         }
