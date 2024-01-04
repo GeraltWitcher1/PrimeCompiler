@@ -2,7 +2,7 @@
 
 namespace Prime;
 
-public class Program
+public class Compiler
 {
     public static void Main()
     {
@@ -13,17 +13,16 @@ public class Program
 
         try
         {
-            ProgramNode astRoot = parser.ParseProgram();
+            var astRoot = parser.ParseProgram();
             Console.WriteLine("Parsing successful");
-            PrintAstVisitor printVisitor = new PrintAstVisitor();
+            var printVisitor = new PrintAstVisitor();
             astRoot.Accept(printVisitor);
-            Checker checker = new Checker();
+            var checker = new Checker();
             astRoot.Accept(checker);
-            Encoder encoder = new Encoder();
+            var encoder = new Encoder();
             astRoot.Accept(encoder);
-
-
-            string targetName = "prime.tam";
+            
+            const string targetName = "prime.tam";
             encoder.SaveTargetProgram( targetName );
             
         }

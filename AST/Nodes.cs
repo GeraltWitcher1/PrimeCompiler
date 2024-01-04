@@ -129,6 +129,7 @@ namespace Prime.AST
     public class ReturnStatementNode : StatementNode
     {
         public ExpressionNode? ReturnValue { get; set; }
+        public int ParameterSize { get; set; }
 
         public override object? Accept(IAstVisitor visitor, object? arg = null)
         {

@@ -1,4 +1,5 @@
-﻿using Prime.AST;
+﻿using System.Drawing;
+using Prime.AST;
 
 namespace Prime
 {
@@ -106,16 +107,23 @@ namespace Prime
             // Emit(Machine.CallOp, 0, Machine.PBr, Machine.PBr + 1);
 
             int size = HandleParams(node.Parameters, adr);
-            var newAdd = new Address(adr, -size);
+            var newAdd = new Address(adr, size);
             HandleParams(node.Parameters, newAdd);
 
             // Visit the function's body
+            
+            var returnStatement = node.Statements.FirstOrDefault(st => st is ReturnStatementNode);
+            if (returnStatement is not null)
+            {
+                var returnStatementNode = (ReturnStatementNode) returnStatement;
+                returnStatementNode.ParameterSize = size;
+            }
             foreach (var statement in node.Statements)
             {
                 statement.Accept(this, new Address( adr, Machine.LinkDataSize ) );
             }
 
-            Emit(Machine.ReturnOp, 1, 0, size);
+            // Emit(Machine.ReturnOp, 1, 0, size);
             _currentLevel--;
             return arg;
         }
@@ -254,8 +262,15 @@ namespace Prime
 
         public object? Visit(ReturnStatementNode node, object? arg = null)
         {
-            return node.ReturnValue?.Accept(this, true);
+            // Visit the return value and push it onto the stack
+            node.ReturnValue?.Accept(this, true);
+
+            // Emit the RETURN instruction
+            Emit(Machine.ReturnOp, 1, 0, 0);
+
+            return null;
         }
+
 
         // Implement methods for other statement nodes and expression nodes...
 
