@@ -18,6 +18,8 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * Disassembles the TAM code in the given file, and displays the
@@ -376,7 +378,13 @@ public class Disassembler {
     }
   }
 
-
+public static int convertToBigEndian(int littleIndian){
+    ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
+    buffer.order(ByteOrder.LITTLE_ENDIAN);
+    buffer.putInt(littleIndian);
+    buffer.order(ByteOrder.BIG_ENDIAN);
+    return buffer.getInt(0);
+}
 // DISASSEMBLE
 
   public static void main(String[] args) {
@@ -385,7 +393,7 @@ public class Disassembler {
     if (args.length == 1)
       objectName = args[0];
     else
-      objectName = "obj.tam";
+      objectName = "prime.tam";
 
     loadObjectProgram(objectName);
     disassembleProgram();

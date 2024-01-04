@@ -19,6 +19,8 @@ import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 
+import static TAM.Disassembler.convertToBigEndian;
+
 public class Instruction {
 
   public Instruction() {
@@ -52,10 +54,10 @@ public class Instruction {
   public static Instruction read(DataInputStream input) throws IOException {
     Instruction inst = new Instruction();
     try {
-      inst.op = input.readInt();
-      inst.r = input.readInt();
-      inst.n = input.readInt();
-      inst.d = input.readInt();
+      inst.op = convertToBigEndian(input.readInt());
+      inst.r = convertToBigEndian(input.readInt());
+      inst.n = convertToBigEndian(input.readInt());
+      inst.d = convertToBigEndian(input.readInt());
       return inst;
     } catch (EOFException s) {
       return null;

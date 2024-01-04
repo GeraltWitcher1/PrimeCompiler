@@ -620,7 +620,7 @@ public class Interpreter {
     if (args.length == 1)
       objectName = args[0];
   	else
-      objectName = "obj.tam";
+      objectName = "prime2.tam";
 
     loadObjectProgram(objectName);
     if (CT != CB) {
